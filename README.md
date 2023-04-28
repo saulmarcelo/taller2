@@ -1,2 +1,2 @@
 # taller2
-autores: Saul Lefiqueo, Claudio Churke
+autores: Saul Lefiqueo, Claudio Churque
