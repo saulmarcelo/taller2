@@ -1,5 +1,5 @@
 const attacks = require('./attacks.json');
-
+const log = [];
 const tipoClase = {
   MAGICIAN: 'MAGIC',
   KNIGHT: 'PHYSICAL',
@@ -45,8 +45,8 @@ function generarPersonajeAleatorio(){
     const segundoAtaque = comprobarTipoAtaque(clase);
     const vida = generarVida();
     const velocidad = generarVelocidad();
-   // const nombre = attacks[getNumeroRandom(attacks.length)].name;
-   return {
+
+    return {
     nombre,
     clase,
     primerAtaque,
@@ -63,28 +63,28 @@ function elegirAtaque(personaje){
 
 
 function ataque (atacante, defensa, numTurno) {
-    let terminarCombate = false;
     const ataque = elegirAtaque(atacante);
     const presicion = Math.floor(Math.random() * (100 - 1 + 1)) + 1;;
-    console.log(atacante)
+
     if (ataque.accuracy >= presicion) {
         defensa.vida -= ataque.damage;
         if(defensa.vida <= 0){
-            console.log("termina combate")
-            return true;
+            log.push(`${atacante.nombre} ataca con ${ataque.name}... Da en el blanco. El ${defensa} no puede continuar`);
+            generarResumen(atacante,defensa);
         } else {
-            return false;
+            log.push(`Turno ${numTurno}\n 
+             ${atacante.nombre} ataca con ${ataque.name}... Da en el blanco!. La vida del ${defensa.nombre} queda en ${defensa.vida}.`);
         }
     } else {
       atacante.ataquesFallados++;
-      return false;
+      log.push(`Turno ${numTurno}\n
+      ${atacante.nombre} ataca con ${ataque.name}... Falla!. La vida del ${defensa.nombre} se mantiene en ${defensa.vida}.`);
     }
 
-    return terminarCombate;
 }
 
 function prioridadTurnoCombate (personaje1, personaje2){
-    let atacante, defensa,numTurno = 0,terminarCombate = false;
+    let atacante, defensa,numTurno = 0;
   if (personaje1.velocidad > personaje2.velocidad) {
     atacante = personaje1;
     defensa = personaje2;
@@ -100,16 +100,16 @@ function prioridadTurnoCombate (personaje1, personaje2){
         defensa = personaje1;
     }
   }
-    
-  
+
+  log.push(`### BATALLA  ###\n\n`)
   do{
     numTurno++
-    terminarCombate = ataque(atacante,defensa,numTurno);
+    ataque(atacante,defensa,numTurno);
     if(defensa.vida <= 0){
         break;
     }
     
-    terminarCombate = ataque(defensa,atacante,numTurno);
+    ataque(defensa,atacante,numTurno);
     if(atacante.vida <=0){
         break;
     }
@@ -118,11 +118,29 @@ function prioridadTurnoCombate (personaje1, personaje2){
 }
 
 function comenzarCombate(personaje1,personaje2){
+    log.push(`### INICIO ###\n\n`);
+
+    log.push(` ${personaje1.nombre} | ${personaje1.clase} | ${personaje1.vida} de vida vs ${personaje2.nombre} | ${personaje2.clase} | ${personaje2.vida} de vida `);
     prioridadTurnoCombate(personaje1,personaje2);
 }
 
+function generateFileLog(logs, filename) {
+    const fs = require("fs");
+    fs.writeFile(filename, logs, (err) => {
+    if (err) throw err;
+    });
+    }
+
+function generarResumen(personaje1, personaje2){
+    log.push(`### RESUMEN ###\n\n`);
+    log.push(`${personaje1.nombre} gana la batalla!`)
+    log.push(`El ${personaje1.nombre} falló ${personaje1.ataquesFallados} veces su ataque`);
+    log.push(`El ${personaje2.nombre} falló ${personaje2.ataquesFallados} veces su ataque`);
+}
+    
 
 
+generateFileLog(log, "logs_batalla.txt");
 let personaje1 = generarPersonajeAleatorio();
 let personaje2 = generarPersonajeAleatorio();
 comenzarCombate(personaje1,personaje2);
