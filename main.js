@@ -12,8 +12,18 @@ function getNumeroRandom(max) {
 }
 
 function comprobarTipoAtaque(tipoClase){
-    const ataquesDisponibles = attacks.filter(attack => attack.type == tipoClase)
-    const ataque = ataquesDisponibles[getNumeroRandom(ataquesDisponibles.length)];
+    let tipoAtaque = "";
+    console.log(tipoClase);
+    if(tipoClase == "MAGICIAN" || tipoClase === "FAIRY"){
+        tipoAtaque = "MAGIC";
+        const ataquesDisponibles = attacks.filter(attack => attack.type == tipoAtaque)
+        return ataquesDisponibles[getNumeroRandom(ataquesDisponibles.length)];
+    } else {
+        tipoAtaque ="PHYSICAL";
+        const ataquesDisponibles = attacks.filter(attack => attack.type == tipoAtaque)
+        return ataquesDisponibles[getNumeroRandom(ataquesDisponibles.length)];
+    }    
+    
 }
 
 
@@ -21,8 +31,8 @@ function generarPersonajeAleatorio(){
     const nombre = 'Personaje_'+getNumeroRandom(100);
     const clases = Object.keys(tipoClase);
     const clase  = clases[getNumeroRandom(clases.length)];
-    const validar = clases.filter();
     const primerAtaque = comprobarTipoAtaque(clase);
+    const segundoAtaque = comprobarTipoAtaque(clase);
     //attacks[getNumeroRandom(attacks.length)];
    // console.log(primerAtaque);
    // const nombre = attacks[getNumeroRandom(attacks.length)].name;
