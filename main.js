@@ -1,5 +1,6 @@
 const attacks = require('./attacks.json');
-const log = [];
+let fightlogs="";
+
 const tipoClase = {
   MAGICIAN: 'MAGIC',
   KNIGHT: 'PHYSICAL',
@@ -32,13 +33,9 @@ function generarVelocidad(){
     return Math.floor(Math.random() * 10) + 1;
 }
 
-function comprobarNombre(){
-
-}
-
 
 function generarPersonajeAleatorio(){
-    const nombre = 'Personaje_'+getNumeroRandom(100);
+    const nombre = 'Personaje_'+getNumeroRandom(10);
     const clases = Object.keys(tipoClase);
     const clase  = clases[getNumeroRandom(clases.length)];
     const primerAtaque = comprobarTipoAtaque(clase);
@@ -62,23 +59,25 @@ function elegirAtaque(personaje){
 }
 
 
-function ataque (atacante, defensa, numTurno) {
+function ataque (atacante, defensa) {
     const ataque = elegirAtaque(atacante);
     const presicion = Math.floor(Math.random() * (100 - 1 + 1)) + 1;;
-
+    //en caso de que la presicion del ataque sea mayor a presicion, se realizara el ataque
     if (ataque.accuracy >= presicion) {
         defensa.vida -= ataque.damage;
+        //se comprueba si termina el combate
         if(defensa.vida <= 0){
-            log.push(`${atacante.nombre} ataca con ${ataque.name}... Da en el blanco. El ${defensa} no puede continuar`);
+            fightlogs+=` ${atacante.nombre} ataca con ${ataque.name}... Da en el blanco. El ${defensa.nombre} no puede continuar\n\n`;
+            //genera el logs ## RESUMEN ##
             generarResumen(atacante,defensa);
         } else {
-            log.push(`Turno ${numTurno}\n 
-             ${atacante.nombre} ataca con ${ataque.name}... Da en el blanco!. La vida del ${defensa.nombre} queda en ${defensa.vida}.`);
+            fightlogs+=` ${atacante.nombre} ataca con ${ataque.name}... Da en el blanco!. La vida del ${defensa.nombre} queda en ${defensa.vida}.\n`;
         }
     } else {
+    //aumenta el numero de ataques fallidos
       atacante.ataquesFallados++;
-      log.push(`Turno ${numTurno}\n
-      ${atacante.nombre} ataca con ${ataque.name}... Falla!. La vida del ${defensa.nombre} se mantiene en ${defensa.vida}.`);
+      fightlogs+=`${atacante.nombre} ataca con ${ataque.name}... Falla!. La vida del ${defensa.nombre} se mantiene en ${defensa.vida}.\n`;
+
     }
 
 }
@@ -101,14 +100,18 @@ function prioridadTurnoCombate (personaje1, personaje2){
     }
   }
 
-  log.push(`### BATALLA  ###\n\n`)
+  fightlogs+="### BATALLA ###\n\n";
   do{
-    numTurno++
+    numTurno++;
+    fightlogs+=`Turno ${numTurno}\n`;
+
+   //ya que atacante tiene mayor velocidad realizaba el ataque primero
     ataque(atacante,defensa,numTurno);
     if(defensa.vida <= 0){
         break;
     }
     
+    //luego de que atacante haya realizado el ataque, lo va a realizar el que haya quedado segundo(el defensa)
     ataque(defensa,atacante,numTurno);
     if(atacante.vida <=0){
         break;
@@ -118,9 +121,8 @@ function prioridadTurnoCombate (personaje1, personaje2){
 }
 
 function comenzarCombate(personaje1,personaje2){
-    log.push(`### INICIO ###\n\n`);
-
-    log.push(` ${personaje1.nombre} | ${personaje1.clase} | ${personaje1.vida} de vida vs ${personaje2.nombre} | ${personaje2.clase} | ${personaje2.vida} de vida `);
+    fightlogs+="### INICIO ###\n\n";
+    fightlogs+=`${personaje1.nombre} | ${personaje1.clase} | ${personaje1.vida} de vida vs ${personaje2.nombre} | ${personaje2.clase} | ${personaje2.vida} de vida `;
     prioridadTurnoCombate(personaje1,personaje2);
 }
 
@@ -132,15 +134,19 @@ function generateFileLog(logs, filename) {
     }
 
 function generarResumen(personaje1, personaje2){
-    log.push(`### RESUMEN ###\n\n`);
-    log.push(`${personaje1.nombre} gana la batalla!`)
-    log.push(`El ${personaje1.nombre} falló ${personaje1.ataquesFallados} veces su ataque`);
-    log.push(`El ${personaje2.nombre} falló ${personaje2.ataquesFallados} veces su ataque`);
+    fightlogs+="### RESUMEN ###\n\n";
+    fightlogs+=`${personaje1.nombre} gana la batalla!\n`;
+    fightlogs+=`El ${personaje1.nombre} falló ${personaje1.ataquesFallados} veces su ataque\n`;
+    fightlogs+=`El ${personaje2.nombre} falló ${personaje2.ataquesFallados} veces su ataque\n`;
 }
-    
 
-
-generateFileLog(log, "logs_batalla.txt");
 let personaje1 = generarPersonajeAleatorio();
 let personaje2 = generarPersonajeAleatorio();
+
+// en caso de que tengan el mismo nombre entra al while, hasta que tengan nombres distintos
+while(personaje1.nombre == personaje2.nombre){
+     personaje2 = generarPersonajeAleatorio();
+}
+
 comenzarCombate(personaje1,personaje2);
+generateFileLog(fightlogs, 'logs_batalla.txt');
