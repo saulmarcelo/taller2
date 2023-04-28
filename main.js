@@ -13,7 +13,6 @@ function getNumeroRandom(max) {
 
 function comprobarTipoAtaque(tipoClase){
     let tipoAtaque = "";
-    console.log(tipoClase);
     if(tipoClase == "MAGICIAN" || tipoClase === "FAIRY"){
         tipoAtaque = "MAGIC";
         const ataquesDisponibles = attacks.filter(attack => attack.type == tipoAtaque)
@@ -23,7 +22,14 @@ function comprobarTipoAtaque(tipoClase){
         const ataquesDisponibles = attacks.filter(attack => attack.type == tipoAtaque)
         return ataquesDisponibles[getNumeroRandom(ataquesDisponibles.length)];
     }    
-    
+}
+
+function generarVida(){
+    return Math.floor(Math.random() * (200 - 100 + 1)) + 100;
+}
+
+function generarVelocidad(){
+    return Math.floor(Math.random() * 10) + 1;
 }
 
 
@@ -33,12 +39,21 @@ function generarPersonajeAleatorio(){
     const clase  = clases[getNumeroRandom(clases.length)];
     const primerAtaque = comprobarTipoAtaque(clase);
     const segundoAtaque = comprobarTipoAtaque(clase);
-    //attacks[getNumeroRandom(attacks.length)];
-   // console.log(primerAtaque);
+    const vida = generarVida();
+    const velocidad = generarVelocidad();
    // const nombre = attacks[getNumeroRandom(attacks.length)].name;
-   // const nombre = attacks[getNumeroRandom(attacks.length)].name;
-   // const nombre = attacks[getNumeroRandom(attacks.length)].name;
+   return {
+    nombre,
+    clase,
+    primerAtaque,
+    segundoAtaque,
+    vida,
+    velocidad
+  };
+
+
 }
 
-generarPersonajeAleatorio();
+let personaje1 = generarPersonajeAleatorio();
+console.log(personaje1);
 //console.log(types[getNumeroRandom(types.length)]);
