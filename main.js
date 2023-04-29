@@ -12,6 +12,7 @@ function getNumeroRandom(max) {
     return Math.floor(Math.random() * max);
 }
 
+//se comprueba el tipoAtaque dado el tipoDeClase del personaje
 function comprobarTipoAtaque(tipoClase){
     let tipoAtaque = "";
     if(tipoClase == "MAGICIAN" || tipoClase === "FAIRY"){
@@ -19,7 +20,7 @@ function comprobarTipoAtaque(tipoClase){
         const ataquesDisponibles = attacks.filter(attack => attack.type == tipoAtaque)
         return ataquesDisponibles[getNumeroRandom(ataquesDisponibles.length)];
     } else {
-        tipoAtaque ="PHYSICAL";
+        tipoAtaque = "PHYSICAL";
         const ataquesDisponibles = attacks.filter(attack => attack.type == tipoAtaque)
         return ataquesDisponibles[getNumeroRandom(ataquesDisponibles.length)];
     }    
@@ -82,8 +83,9 @@ function ataque (atacante, defensa) {
 
 }
 
+//define quien va a ser el primero en atacar
 function prioridadTurnoCombate (personaje1, personaje2){
-    let atacante, defensa,numTurno = 0;
+    let atacante, defensa;
   if (personaje1.velocidad > personaje2.velocidad) {
     atacante = personaje1;
     defensa = personaje2;
@@ -99,28 +101,34 @@ function prioridadTurnoCombate (personaje1, personaje2){
         defensa = personaje1;
     }
   }
-
-  fightlogs+="### BATALLA ###\n\n";
-  do{
-    numTurno++;
-    fightlogs+=`Turno ${numTurno}\n`;
-
-   //ya que atacante tiene mayor velocidad realizaba el ataque primero
-    ataque(atacante,defensa,numTurno);
-    if(defensa.vida <= 0){
-        break;
-    }
-    
-    //luego de que atacante haya realizado el ataque, lo va a realizar el que haya quedado segundo(el defensa)
-    ataque(defensa,atacante,numTurno);
-    if(atacante.vida <=0){
-        break;
-    }
-  } while(true);
-
+  comenzarCombate(atacante,defensa);
 }
 
-function comenzarCombate(personaje1,personaje2){
+function comenzarCombate(atacante,defensa){
+    numTurno =0;
+    fightlogs+="### BATALLA ###\n\n";
+    do{
+      numTurno++;
+      fightlogs+=`Turno ${numTurno}\n`;
+  
+     //ya que atacante tiene mayor velocidad realizaba el ataque primero
+      ataque(atacante,defensa,numTurno);
+      //comprueba si el defensa perdio
+      if(defensa.vida <= 0){
+          break;
+      }
+      
+      //luego de que atacante haya realizado el ataque, lo va a realizar el que haya quedado segundo(el defensa)
+      ataque(defensa,atacante,numTurno);
+  
+      //comprueba si el atacante perdio
+      if(atacante.vida <=0){
+          break;
+      }
+    } while(true);
+}
+
+function generarCombate(personaje1,personaje2){
     fightlogs+="### INICIO ###\n\n";
     fightlogs+=`${personaje1.nombre} | ${personaje1.clase} | ${personaje1.vida} de vida vs ${personaje2.nombre} | ${personaje2.clase} | ${personaje2.vida} de vida `;
     prioridadTurnoCombate(personaje1,personaje2);
@@ -130,7 +138,7 @@ function generateFileLog(logs, filename) {
     const fs = require("fs");
     fs.writeFile(filename, logs, (err) => {
     if (err) throw err;
-    });
+        });
     }
 
 function generarResumen(personaje1, personaje2){
@@ -148,5 +156,5 @@ while(personaje1.nombre == personaje2.nombre){
      personaje2 = generarPersonajeAleatorio();
 }
 
-comenzarCombate(personaje1,personaje2);
+generarCombate(personaje1,personaje2);
 generateFileLog(fightlogs, 'logs_batalla.txt');
